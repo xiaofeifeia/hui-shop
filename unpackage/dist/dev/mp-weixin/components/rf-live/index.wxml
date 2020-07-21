@@ -1,0 +1,1 @@
+<view hidden="{{!(liveShow)}}" class="rf-live data-v-2becf090"><view class="wrapper data-v-2becf090"><text class="{{['iconfont data-v-2becf090',icon]}}"></text><view class="content data-v-2becf090">直播中</view><view data-event-opts="{{[['tap',[['navToLive',['$event']]]]]}}" class="btn data-v-2becf090" bindtap="__e">去围观</view></view></view>
