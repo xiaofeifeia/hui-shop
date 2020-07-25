@@ -12,7 +12,7 @@
 					:hover-start-time="150"
 				>
 					<view class="rf-product-image-wrapper">
-						<image :src="item.picture" mode="widthFix" :preview="false" :class="[isList?'rf-product-list-img':'rf-product-img']" ></image>
+						<image :src="item.image" mode="widthFix" :preview="false" :class="[isList?'rf-product-list-img':'rf-product-img']" ></image>
 						<text class="sketch in1line">{{ item.sketch }}</text>
 						<view class="triangle-wrapper">
 							<image class="triangle-tag" :src="item | filterTagName"></image>
@@ -23,7 +23,7 @@
 						<view v-if="item">
 							<view class="rf-pro-price">
 								<text class="rf-sale-price" :class="'text-'+themeColor.name">{{ moneySymbol }}{{ item.price }}</text>
-								<text class="rf-factory-price" v-if="item.market_price > item.price">{{ moneySymbol }}{{ item.market_price }}</text>
+								<text class="rf-factory-price" v-if="item.oldPrice > item.price">{{ moneySymbol }}{{ item.oldPrice }}</text>
 							</view>
 							<view class="rf-pro-pay">
 								<text
@@ -166,6 +166,9 @@ export default {
 				// 虚拟产品
 				return $mAssetsPath.virtual;
 			} else if (val.shipping_type === '1') {
+				// 包邮产品
+				return $mAssetsPath.pinkage;
+			}else {
 				// 包邮产品
 				return $mAssetsPath.pinkage;
 			}

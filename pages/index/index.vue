@@ -7,36 +7,36 @@
 			icon="iconsaomiao"
 			:placeholder="hotSearchDefault"
 		/>
-		<scroll-view scroll-x class="index-cate" :style="{top: customBar +'px'}" v-if="isOpenIndexCate && categoryList.length > 0">
+		<scroll-view scroll-x class="index-cate" :style="{top: customBar +'px'}" v-if="isOpenIndexCate && navList.length > 0">
 			<view
-				v-for="(item, index) in categoryList"
+				v-for="(item, index) in navList"
 				:key="index"
 				class="index-cate-item"
 				:class="tabCurrentIndex === index ? `text-${themeColor.name} active` : ''"
 				@tap.stop="tabClick(index, item.id)"
 			>
-				{{ item.title }}
+				{{ item.name }}
 			</view>
 		</scroll-view>
-		<view :class="isOpenIndexCate && categoryList.length > 0 ? 'main-wrapper' : ''">
+		<view :class="isOpenIndexCate && bannerList.length > 0 ? 'main-wrapper' : ''">
 			<block v-if="currentCate === 0">
 				<!-- 轮播图1 -->
 				<view class="swiper">
 					<view class="swiper-box">
 						<rf-swipe-dot
-							:info="carouselList.index_top"
+							:info="bannerList"
 							mode="nav"
 							:current="current"
 							field="title"
 						>
 							<swiper @change="handleDotChange" autoplay="true">
 								<swiper-item
-									v-for="(item, index) in carouselList.index_top"
+									v-for="(item, index) in bannerList"
 									@tap="indexTopToDetailPage(item)"
 									:key="index"
 								>
 									<view class="swiper-item">
-										<image :src="item.cover" mode="aspectFill" />
+										<image :src="item.image" mode="aspectFill" />
 									</view>
 								</swiper-item>
 							</swiper>
@@ -47,10 +47,10 @@
 				<swiper
 					:indicator-active-color="themeColor.color"
 					indicator-color="#666"
-					:indicator-dots="productCateList.length > 10"
-					:style="{height: productCateList.length <= 5 ? '200rpx' : '400rpx'}"
+					:indicator-dots="hotCategoryList.length > 10"
+					:style="{height: hotCategoryList.length <= 5 ? '200rpx' : '400rpx'}"
 					class="category-list-wrapper"
-					v-if="productCateList.length > 0">
+					v-if="hotCategoryList.length > 0">
 					<swiper-item
 						class="category-list"
 						v-for="(fItem, fIndex) in swipeCateList"
@@ -60,9 +60,9 @@
 							class="category"
 							v-for="(sItem, sIndex) in fItem" :key="sIndex" @tap.stop="navToCategory(sItem.id)">
 							<view class="img">
-								<image :src="sItem.cover || errorImage" mode="aspectFill"></image>
+								<image :src="sItem.image || errorImage" mode="aspectFill"></image>
 							</view>
-							<view class="text in1line">{{ sItem.title}}</view>
+							<view class="text in1line">{{ sItem.name}}</view>
 						</view>
 					</swiper-item>
 				</swiper>
@@ -85,20 +85,20 @@
 				<!--新品上市-->
 				<rf-floor-index
 					icon="iconxinpin2"
-					:list="newProductList"
+					:list="newGoodsList"
 					@toBanner="indexTopToDetailPage"
 					@toList="
 					navTo(`/pages/product/list?param=${JSON.stringify({ is_new: 1 })}`)
 				"
-					:header="{ title: '新品上市', desc: 'New Products Listed' }"
+					:header="{ title: '新品上市', desc: 'New Goods Listed' }"
 					@detail="navToDetailPage"
-					:banner="carouselList.index_new && carouselList.index_new[0]"
+					:banner="newBanner"
 				/>
 				<!--推荐商品-->
 				<rf-floor-index
 					icon="icontuijian21"
-					:list="recommendProductList"
-					:header="{ title: '推荐商品', desc: 'Recommend Product' }"
+					:list="recommendGoodsList"
+					:header="{ title: '推荐商品', desc: 'Recommend Goods' }"
 					@toBanner="indexTopToDetailPage"
 					@toList="
 					navTo(
@@ -106,19 +106,19 @@
 					)
 				"
 					@detail="navToDetailPage"
-					:banner="carouselList.index_recommend && carouselList.index_recommend[0]"
+					:banner="recommendBanner"
 				/>
 				<!--热门商品-->
 				<rf-floor-index
 					icon="iconremen2"
-					:list="hotProductList"
-					:header="{ title: '热门商品', desc: 'Hot Product' }"
+					:list="hotGoodsList"
+					:header="{ title: '热门商品', desc: 'Hot Goods' }"
 					@toBanner="indexTopToDetailPage"
 					@toList="
 					navTo(`/pages/product/list?param=${JSON.stringify({ is_hot: 1 })}`)
 				"
 					@detail="navToDetailPage"
-					:banner="carouselList.index_hot && carouselList.index_hot[0]"
+					:banner="hotBanner"
 				/>
 				<!--猜您喜欢-->
 				<rf-floor-index
@@ -132,10 +132,10 @@
 				/>
 				<!--网站备案号-->
 				<!--#ifdef H5-->
-				<view class="copyright" v-if="config.web_site_icp">
+				<!-- <view class="copyright" v-if="config.web_site_icp">
 					{{ config.copyright_desc }}
 					<a href="http://www.beian.miit.gov.cn">{{ config.web_site_icp }}</a>
-				</view>
+				</view> -->
 				<!-- #endif -->
 			</block>
 			<view v-else class="index-cate-product-list">
@@ -186,12 +186,15 @@ export default {
 	data() {
 		return {
 			current: 0, // 轮播图index
-			carouselList: {}, // 广告图
-			hotProductList: [], // 热门商品列表
-			recommendProductList: [], // 推荐商品列表
+			newBanner: {}, // 广告图
+			recommendBanner: {}, // 广告图
+			hotBanner: {}, // 广告图
+			bannerList:[],
+			hotGoodsList: [], // 热门商品列表
+			recommendGoodsList: [], // 推荐商品列表
 			guessYouLikeProductList: [], // 猜您喜欢商品列表
-			newProductList: [], // 新品上市商品列表
-			productCateList: [], // 商品栏目
+			newGoodsList: [], // 新品上市商品列表
+			hotCategoryList: [], // 商品栏目
 			config: {}, // 商户配置
 			announceList: [], // 公告列表
 			share: {},
@@ -204,11 +207,11 @@ export default {
 			errorImage: this.$mAssetsPath.errorImage,
 			appName: this.$mSettingConfig.appName,
 			tabCurrentIndex: 0,
-			categoryList: [], // 分类列表
+			navList: [], // 导航分类列表
 			categoryProductList: [], // 分类列表
 			page: 1,
 			currentCate: 0,
-      hotRecommendList: this.$mConstDataConfig.hotRecommendList,
+            hotRecommendList: this.$mConstDataConfig.hotRecommendList,
 			productLoading: true,
 			customBar: this.CustomBar,
 			isOpenIndexCate: this.$mSettingConfig.isOpenIndexCate,
@@ -240,7 +243,7 @@ export default {
 			return bottom;
 		},
 		swipeCateList() {
-			const list = this.productCateList;
+			const list = this.hotCategoryList;
 			let result = [];
 			for (let i = 0, len = list.length; i < len; i += 10) {
 				result.push(list.slice(i, i + 10));
@@ -364,42 +367,43 @@ export default {
 		},
 		// 获取主页数据
 		async getIndexList(type) {
-			await this.$http
-				.get(`${indexList}`, {})
-				.then(async r => {
-					uni.setNavigationBarTitle({ title: this.appName });
-					if (type === 'refresh') {
-						uni.stopPullDownRefresh();
-					}
-					// 首页参数赋值
-					this.initIndexData(r.data);
-					this.loading = false;
-				})
-				.catch(() => {
-					this.loading = false;
-					if (type === 'refresh') {
-						uni.stopPullDownRefresh();
-					}
-				});
+			
+			this.loading = true;
+			
+			const r = await this.$myRequest({
+				url: '/api/home/getHomeData'
+			});
+			// 首页参数赋值
+			this.initIndexData(r.data);
+			if (type === 'refresh') {
+				uni.stopPullDownRefresh();
+			}
+			uni.setNavigationBarTitle({ title: this.appName });
+			this.loading = false;
+			
 		},
 		// 首页参数赋值
 		initIndexData(data) {
 			this.announceList = data.announce || [];
-			this.productCateList = data.cate;
-			this.categoryList = [{ id: 0, title: '首页' }, ...this.productCateList];
-			this.carouselList = data.adv;
+			this.hotCategoryList = data.hotCategoryList;
+			this.navList = [{ id: 0, name: '首页' }, ...data.navList];
+			this.bannerList = data.bannerList;
+			this.newBanner=data.newBanner;
+			this.recommendBanner=data.recommendBanner;
+			this.hotBanner=data.hotBanner;
 			this.search = data.search;
-			this.share = data.share;
+			this.share = data.share | {share_title:'你好'};
 			uni.setStorageSync('search', this.search);
-			this.hotSearchDefault = data.search.hot_search_default || '请输入关键字';
-			uni.setStorage({
+			//this.hotSearchDefault = data.search.hot_search_default || '请输入关键字';
+			this.hotSearchDefault =  '请输入关键字';
+			/* uni.setStorage({
 				key: 'hotSearchDefault',
 				data: data.search.hot_search_default
-			});
-			this.hotProductList = data.product_hot;
-			this.recommendProductList = data.product_recommend;
-			this.guessYouLikeProductList = data.guess_you_like;
-			this.newProductList = data.product_new;
+			}); */
+			this.hotGoodsList = data.hotGoodsList;
+			this.recommendGoodsList = data.recommendGoodsList;
+			this.guessYouLikeProductList = data.guess_you_like || [];
+			this.newGoodsList = data.newGoodsList;
 			this.config = data.config;
 			this.$mHelper.handleWxH5Share(this.share.share_title || this.appName, this.share.share_desc || `欢迎来到${this.appName}商城`, this.share.share_link || this.$mConfig.hostUrl, this.share.share_cover || this.$mSettingConfig.appLogo);
 		},

@@ -6,7 +6,7 @@
 			v-if="bannerShow"
 			@tap="toBanner(banner)"
 		>
-			<image :src="banner.cover" mode="aspectFill" />
+			<image :src="banner.image" mode="aspectFill" />
 		</view>
 		<!--列表-->
 		<view class="f-header" @tap="toList">
